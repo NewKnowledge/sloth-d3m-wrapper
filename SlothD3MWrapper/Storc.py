@@ -2,7 +2,6 @@ import sys
 import os.path
 import numpy as np
 import pandas
-import typing
 
 from Sloth import Sloth
 from tslearn.datasets import CachedDatasets
@@ -43,6 +42,9 @@ class Hyperparams(hyperparams.Hyperparams):
     pass
 
 class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
+    """
+        Produce primitive's best guess for the cluster number of each series.
+    """
     metadata = metadata_base.PrimitiveMetadata({
         # Simply an UUID generated once and fixed forever. Generated using "uuid.uuid4()".
         'id': "77bf4b92-2faa-3e38-bb7e-804131243a7f",
@@ -86,8 +88,6 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
 
     def produce(self, *, inputs: Inputs, timeout: float = None, iterations: int = None) -> CallResult[Outputs]:
         """
-        Produce primitive's best guess for the structural type of each input column.
-
         Parameters
         ----------
         inputs : Input pandas frame where each row is a series.  Series timestamps are store in the column names.
@@ -126,7 +126,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
                 min_samples = 5
             else:
                 min_samples = self.hyperparams['min_samples']
-                SimilarityMatrix = sloth.GenerateSimilarityMatrix(inpust.values)
+                SimilarityMatrix = sloth.GenerateSimilarityMatrix(inputs.values)
                 nclusters, labels, cnt = sloth.HClusterSimilarityMatrix(SimilarityMatrix, min_samples)
         else:
             # enforce default value
@@ -148,7 +148,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         col_dict = dict(sloth_df.metadata.query((metadata_base.ALL_ELEMENTS, 0)))
         col_dict['structural_type'] = type("1")
         col_dict['name'] = 'labels'
-        col_dict['semantic_types'] = ('http://schema.org/Integer', 'https://metadata.datadrivendiscovery.org/types/Attribute')
+        col_dict['semantic_types'] = ('http://schema.org/Integer', 'https://metadata.datadrivendiscovery.org/types/PredictedTarget')
         sloth_df.metadata = sloth_df.metadata.update((metadata_base.ALL_ELEMENTS, 0), col_dict)
 
         # concatentate final output frame -- not real consensus from program, so commenting out for now
@@ -158,8 +158,8 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
 
 if __name__ == '__main__':
     # Load data and preprocessing
-    input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/tables/learningData.csv')
-    ds2df_client = DatasetToDataFrame(hyperparams = {"dataframe_resource":"0"})
+    input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/datasetDoc.json')
+    ds2df_client = DatasetToDataFrame(hyperparams = {"dataframe_resource":"1"})
     df = d3m_DataFrame(ds2df_client.produce(inputs = input_dataset).value)    
     ts_loader = TimeSeriesLoaderPrimitive(hyperparams = {"time_col_index":0, "value_col_index":1,"file_col_index":1})
     metadata_dict = dict(df.metadata.query_column(ts_loader.hyperparams['file_col_index']))
