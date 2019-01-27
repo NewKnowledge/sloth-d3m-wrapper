@@ -10,7 +10,7 @@ setup(name='SlothD3MWrapper',
     ],
     entry_points = {
         'd3m.primitives': [
-            'distil.Sloth.cluster = SlothD3MWrapper:Storc'
+            'time_series_segmentation.time_series_clustering.Sloth.cluster = SlothD3MWrapper:Storc'
         ],
     },
 )
