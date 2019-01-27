@@ -12,8 +12,7 @@ from d3m.primitive_interfaces.base import CallResult
 from d3m import container, utils
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata import hyperparams, base as metadata_base
-from d3m.primitives.datasets import DatasetToDataFrame
-from common_primitives import utils as utils_cp
+from common_primitives import utils as utils_cp, dataset_to_dataframe as DatasetToDataFrame
 
 from timeseriesloader.timeseries_loader import TimeSeriesLoaderPrimitive
 
