@@ -12,13 +12,13 @@ from d3m.primitive_interfaces.base import CallResult
 from d3m import container, utils
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata import hyperparams, base as metadata_base
-from d3m.primitives.datasets import DatasetToDataFrame
-from common_primitives import utils as utils_cp
+from common_primitives import utils as utils_cp, dataset_to_dataframe as DatasetToDataFrame
 
 from timeseriesloader.timeseries_loader import TimeSeriesLoaderPrimitive
 
 __author__ = 'Distil'
 __version__ = '2.0.1'
+__contact__ = 'mailto:jeffrey.gleason@newknowledge.io'
 
 Inputs = container.pandas.DataFrame
 Outputs = container.pandas.DataFrame
@@ -54,6 +54,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         'keywords': ['Time Series','Clustering'],
         'source': {
             'name': __author__,
+            'contact': __contact__,
             'uris': [
                 # Unstructured URIs.
                 "https://github.com/NewKnowledge/sloth-d3m-wrapper",
@@ -74,7 +75,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
             ),
         }],
         # The same path the primitive is registered with entry points in setup.py.
-        'python_path': 'd3m.primitives.distil.Sloth.cluster',
+        'python_path': 'd3m.primitives.time_series_segmentation.time_series_clustering.Sloth',
         # Choose these from a controlled vocabulary in the schema. If anything is missing which would
         # best describe the primitive, make a merge request.
         'algorithm_types': [
@@ -157,9 +158,10 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         return CallResult(sloth_df)
 
 if __name__ == '__main__':
+    
     # Load data and preprocessing
     input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/datasetDoc.json')
-    ds2df_client = DatasetToDataFrame(hyperparams = {"dataframe_resource":"1"})
+    ds2df_client = DatasetToDataFrame.DatasetToDataFramePrimitive(hyperparams = {"dataframe_resource":"1"})
     df = d3m_DataFrame(ds2df_client.produce(inputs = input_dataset).value)    
     ts_loader = TimeSeriesLoaderPrimitive(hyperparams = {"time_col_index":0, "value_col_index":1,"file_col_index":1})
     metadata_dict = dict(df.metadata.query_column(ts_loader.hyperparams['file_col_index']))
@@ -174,3 +176,4 @@ if __name__ == '__main__':
     #frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
     result = storc_client.produce(inputs = ts_values.value.head(100))
     print(result.value)
+    
