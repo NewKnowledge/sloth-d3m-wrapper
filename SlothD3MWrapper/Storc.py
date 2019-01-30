@@ -101,6 +101,9 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         # setup model up
         sloth = Sloth()
 
+        ts_loader = TimeSeriesLoaderPrimitive(hyperparams = {"time_col_index":0, "value_col_index":1, "file_col_index": None})
+        inputs = ts_loader.produce(inputs = inputs).value
+
         # set number of clusters for k-means
         if self.hyperparams['algorithm'] == 'TimeSeriesKMeans':
             # enforce default value
@@ -160,20 +163,10 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
 if __name__ == '__main__':
     
     # Load data and preprocessing
-    input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/datasetDoc.json')
-    ds2df_client = DatasetToDataFrame.DatasetToDataFramePrimitive(hyperparams = {"dataframe_resource":"1"})
+    input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/TRAIN/dataset_TRAIN/datasetDoc.json')
+    ds2df_client = DatasetToDataFrame.DatasetToDataFramePrimitive(hyperparams = {"dataframe_resource":"0"})
     df = d3m_DataFrame(ds2df_client.produce(inputs = input_dataset).value)    
-    ts_loader = TimeSeriesLoaderPrimitive(hyperparams = {"time_col_index":0, "value_col_index":1,"file_col_index":1})
-    metadata_dict = dict(df.metadata.query_column(ts_loader.hyperparams['file_col_index']))
-    metadata_dict['semantic_types'] = ('https://metadata.datadrivendiscovery.org/types/FileName', 'https://metadata.datadrivendiscovery.org/types/Timeseries')
-    metadata_dict['media_types'] = ('text/csv',)
-    metadata_dict['location_base_uris'] = ('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/66_chlorineConcentration_dataset/timeseries/',)
-    df.metadata = df.metadata.update_column(ts_loader.hyperparams['file_col_index'], metadata_dict)
-    ts_values = ts_loader.produce(inputs = df)	    
-
-    #storc_client = Storc(hyperparams={'algorithm':'GlobalAlignmentKernelKMeans','nclusters':4})
-    storc_client = Storc(hyperparams={'algorithm':'DBSCAN','eps':0.5, 'min_samples':5})
-    #frame = pandas.read_csv("path/csv_containing_one_series_per_row.csv",dtype=str)
-    result = storc_client.produce(inputs = ts_values.value.head(100))
+    storc_client = Storc(hyperparams={'algorithm':None,'nclusters':None})#hyperparams={'algorithm':'DBSCAN','eps':0.5, 'min_samples':5})
+    result = storc_client.produce(inputs = df)
     print(result.value)
     
