@@ -1,1 +1,0 @@
-git+https://github.com/NewKnowledge/sloth@jg/editDeps#egg=Sloth-2.0.2
