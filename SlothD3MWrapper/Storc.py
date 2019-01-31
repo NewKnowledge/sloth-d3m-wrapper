@@ -14,7 +14,7 @@ from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata import hyperparams, base as metadata_base
 from common_primitives import utils as utils_cp, dataset_to_dataframe as DatasetToDataFrame
 
-from timeseries_loader import TimeSeriesLoaderPrimitive
+from .timeseries_loader import TimeSeriesLoaderPrimitive
 
 __author__ = 'Distil'
 __version__ = '2.0.2'
@@ -169,6 +169,5 @@ if __name__ == '__main__':
     storc_client = Storc(hyperparams={'algorithm':None,'nclusters':None})#hyperparams={'algorithm':'DBSCAN','eps':0.5, 'min_samples':5})
     result = storc_client.produce(inputs = df)
     print(result.value)
-    with open('sloth_predictions.csv') as file:
-        file.write(str(result.value))
+    result.value.to_csv('sloth_predictions.csv', index = False)
     
