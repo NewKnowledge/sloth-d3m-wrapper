@@ -112,6 +112,7 @@ class TimeSeriesLoaderPrimitive(transformer.TransformerPrimitiveBase[container.D
                 iterations: int = None) -> base.CallResult[container.DataFrame]:
 
         file_index = self.hyperparams['file_col_index']
+        '''
         if file_index is not None:
             if not self._is_csv_file_column(inputs.metadata, file_index):
                 raise exceptions.InvalidArgumentValueError('column idx=' + str(file_index) + ' from '
@@ -121,7 +122,7 @@ class TimeSeriesLoaderPrimitive(transformer.TransformerPrimitiveBase[container.D
             if file_index is None:
                 raise exceptions.InvalidArgumentValueError('no column from '
                                                            + str(inputs.columns) + ' contains csv file names')
-
+        '''
         value_index = self.hyperparams['value_col_index']
         time_index = self.hyperparams['time_col_index']
 
