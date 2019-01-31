@@ -100,6 +100,10 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         """
         # setup model up
         sloth = Sloth()
+        
+        # split filenames into d3mIndex (hacky)
+        col_name = inputs.metadata.query_column(0)['name']
+        d3mIndex_df = pandas.DataFrame([int(filename.split('_')[0]) for filename in inputs[col_name]])
 
         ts_loader = TimeSeriesLoaderPrimitive(hyperparams = {"time_col_index":0, "value_col_index":1, "file_col_index": None})
         inputs = ts_loader.produce(inputs = inputs).value
@@ -141,19 +145,23 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
             labels = sloth.ClusterSeriesKMeans(inputs.values, nclusters, 'GlobalAlignmentKernelKMeans')       
 
         # add metadata to output
-        out_df_sloth = pandas.DataFrame(labels)
-        out_df_sloth.columns = ['labels']
-
-        # initialize the output dataframe as input dataframe (results will be appended to it)
-        # out_df = d3m_DataFrame(inputs)
-
+        labels = pandas.DataFrame(labels)
+        out_df_sloth = pandas.concat([d3mIndex_df, labels], axis = 1)
         sloth_df = d3m_DataFrame(out_df_sloth)
-        # first column ('labels')
+        
+        # first column ('d3mIndex')
         col_dict = dict(sloth_df.metadata.query((metadata_base.ALL_ELEMENTS, 0)))
+        col_dict['structural_type'] = type("1")
+        col_dict['name'] = 'd3mIndex'
+        col_dict['semantic_types'] = ('http://schema.org/Integer', 'https://metadata.datadrivendiscovery.org/types/PrimaryKey',)
+        sloth_df.metadata = sloth_df.metadata.update((metadata_base.ALL_ELEMENTS, 0), col_dict)
+        
+        # second column ('labels')
+        col_dict = dict(sloth_df.metadata.query((metadata_base.ALL_ELEMENTS, 1)))
         col_dict['structural_type'] = type("1")
         col_dict['name'] = 'labels'
         col_dict['semantic_types'] = ('http://schema.org/Integer', 'https://metadata.datadrivendiscovery.org/types/PredictedTarget')
-        sloth_df.metadata = sloth_df.metadata.update((metadata_base.ALL_ELEMENTS, 0), col_dict)
+        sloth_df.metadata = sloth_df.metadata.update((metadata_base.ALL_ELEMENTS, 1), col_dict)
 
         # concatentate final output frame -- not real consensus from program, so commenting out for now
         # out_df = utils_cp.append_columns(out_df, sloth_df)
