@@ -1,0 +1,3 @@
+[d3m.primitives]
+time_series_segmentation.time_series_clustering.Sloth = SlothD3MWrapper:Storc
+

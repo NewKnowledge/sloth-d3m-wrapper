@@ -14,7 +14,7 @@ from d3m.container import DataFrame as d3m_DataFrame
 from d3m.metadata import hyperparams, base as metadata_base
 from common_primitives import utils as utils_cp, dataset_to_dataframe as DatasetToDataFrame
 
-from .timeseries_loader import TimeSeriesLoaderPrimitive
+from timeseries_loader import TimeSeriesLoaderPrimitive
 
 __author__ = 'Distil'
 __version__ = '2.0.2'
@@ -163,10 +163,12 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
 if __name__ == '__main__':
     
     # Load data and preprocessing
-    input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/TRAIN/dataset_TRAIN/datasetDoc.json')
+    input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/TEST/dataset_TEST/datasetDoc.json')
     ds2df_client = DatasetToDataFrame.DatasetToDataFramePrimitive(hyperparams = {"dataframe_resource":"0"})
     df = d3m_DataFrame(ds2df_client.produce(inputs = input_dataset).value)    
     storc_client = Storc(hyperparams={'algorithm':None,'nclusters':None})#hyperparams={'algorithm':'DBSCAN','eps':0.5, 'min_samples':5})
     result = storc_client.produce(inputs = df)
     print(result.value)
+    with open('sloth_predictions.csv') as file:
+        file.write(str(result.value))
     

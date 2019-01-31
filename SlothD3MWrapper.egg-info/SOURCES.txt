@@ -1,0 +1,11 @@
+README.md
+setup.py
+SlothD3MWrapper/Storc.py
+SlothD3MWrapper/__init__.py
+SlothD3MWrapper/timeseries_loader.py
+SlothD3MWrapper.egg-info/PKG-INFO
+SlothD3MWrapper.egg-info/SOURCES.txt
+SlothD3MWrapper.egg-info/dependency_links.txt
+SlothD3MWrapper.egg-info/entry_points.txt
+SlothD3MWrapper.egg-info/requires.txt
+SlothD3MWrapper.egg-info/top_level.txt
