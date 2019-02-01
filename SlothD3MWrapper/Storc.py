@@ -159,7 +159,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         # second column ('labels')
         col_dict = dict(sloth_df.metadata.query((metadata_base.ALL_ELEMENTS, 1)))
         col_dict['structural_type'] = type("1")
-        col_dict['name'] = 'labels'
+        col_dict['name'] = 'label'
         col_dict['semantic_types'] = ('http://schema.org/Integer', 'https://metadata.datadrivendiscovery.org/types/PredictedTarget')
         sloth_df.metadata = sloth_df.metadata.update((metadata_base.ALL_ELEMENTS, 1), col_dict)
 
