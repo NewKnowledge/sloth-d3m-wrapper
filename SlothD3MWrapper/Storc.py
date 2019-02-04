@@ -64,16 +64,22 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         # Of course Python packages can also have their own dependencies, but sometimes it is necessary to
         # install a Python package first to be even able to run setup.py of another package. Or you have
         # a dependency which is not on PyPi.
-         'installation': [{
+         'installation': [
+            {
             'type': metadata_base.PrimitiveInstallationType.PIP,
             'package': 'cython',
             'version': '0.28.5',
-        },{
+            },
+            {
+                "type": "PIP",
+                "package_uri": "git+https://github.com/NewKnowledge/sloth.git@816fa8cabefe317d29f52adfe69da71980a16a76#egg=Sloth"
+            },
+            {
             'type': metadata_base.PrimitiveInstallationType.PIP,
             'package_uri': 'git+https://github.com/NewKnowledge/sloth-d3m-wrapper.git@{git_commit}#egg=SlothD3MWrapper'.format(
-                git_commit=utils.current_git_commit(os.path.dirname(__file__)),
-            ),
-        }],
+                git_commit=utils.current_git_commit(os.path.dirname(__file__)),)
+            }
+        ],
         # The same path the primitive is registered with entry points in setup.py.
         'python_path': 'd3m.primitives.time_series_segmentation.cluster.Sloth',
         # Choose these from a controlled vocabulary in the schema. If anything is missing which would
@@ -110,7 +116,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
 
         # set number of clusters for k-means
         if self.hyperparams['algorithm'] == 'TimeSeriesKMeans':
-            labels = sloth.ClusterSeriesKMeans(inputs.values, self.hyperparams['nclusters'], algorithm = 'TimeSeriesKMeans')
+            labels = sloth.ClusterSeriesKMeans(inputs.values, self.hyperparams['nclusters'], 'TimeSeriesKMeans')
         elif self.hyperparams['algorithm'] == 'DBSCAN':
             SimilarityMatrix = sloth.GenerateSimilarityMatrix(inputs.values)
             nclusters, labels, cnt = sloth.ClusterSimilarityMatrix(SimilarityMatrix, self.hyperparams['eps'], self.hyperparams['min_samples'])
@@ -118,7 +124,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
             SimilarityMatrix = sloth.GenerateSimilarityMatrix(inputs.values)
             nclusters, labels, cnt = sloth.HClusterSimilarityMatrix(SimilarityMatrix, self.hyperparams['min_samples'])
         else:
-            labels = sloth.ClusterSeriesKMeans(inputs.values, self.hyperparams['nclusters'], algorithm = 'GlobalAlignmentKernelKMeans')       
+            labels = sloth.ClusterSeriesKMeans(inputs.values, self.hyperparams['nclusters'], 'GlobalAlignmentKernelKMeans')       
 
         # add metadata to output
         labels = pandas.DataFrame(labels)
