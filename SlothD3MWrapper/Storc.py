@@ -150,7 +150,7 @@ if __name__ == '__main__':
     input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/TEST/dataset_TEST/datasetDoc.json')
     ds2df_client = DatasetToDataFrame.DatasetToDataFramePrimitive(hyperparams = hyperparams_class.defaults().replace({"dataframe_resource":"0"}))
     df = d3m_DataFrame(ds2df_client.produce(inputs = input_dataset).value)    
-    storc_client = Storc(hyperparams_class.defaults().replace({'algorithm':'TimeSeriesKMeans','nclusters':4}))
+    storc_client = Storc(hyperparams = hyperparams_class.defaults().replace({'algorithm':'TimeSeriesKMeans','nclusters':4}))
     result = storc_client.produce(inputs = df)
     print(result.value)
     result.value.to_csv('sloth_predictions.csv', index = False)
