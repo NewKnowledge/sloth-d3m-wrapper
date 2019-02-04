@@ -75,7 +75,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
             ),
         }],
         # The same path the primitive is registered with entry points in setup.py.
-        'python_path': 'd3m.primitives.time_series_segmentation.time_series_clustering.Sloth',
+        'python_path': 'd3m.primitives.time_series_segmentation.clustering.Sloth',
         # Choose these from a controlled vocabulary in the schema. If anything is missing which would
         # best describe the primitive, make a merge request.
         'algorithm_types': [
@@ -105,44 +105,20 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
         col_name = inputs.metadata.query_column(0)['name']
         d3mIndex_df = pandas.DataFrame([int(filename.split('_')[0]) for filename in inputs[col_name]])
 
-        ts_loader = TimeSeriesLoaderPrimitive(hyperparams = {"time_col_index":0, "value_col_index":1, "file_col_index": None})
+        ts_loader = TimeSeriesLoaderPrimitive(hyperparams = hyperparams_class.defaults().replace({"time_col_index":0, "value_col_index":1, "file_col_index": None}))
         inputs = ts_loader.produce(inputs = inputs).value
 
         # set number of clusters for k-means
         if self.hyperparams['algorithm'] == 'TimeSeriesKMeans':
-            # enforce default value
-            if not self.hyperparams['nclusters']:
-                nclusters = 4
-            else:
-                nclusters = self.hyperparams['nclusters']
-            labels = sloth.ClusterSeriesKMeans(inputs.values, nclusters, 'TimeSeriesKMeans')
+            labels = sloth.ClusterSeriesKMeans(inputs.values, self.hyperparams['nclusters'], 'TimeSeriesKMeans')
         elif self.hyperparams['algorithm'] == 'DBSCAN':
-            # enforce default value
-            if not self.hyperparams['eps']:
-                nclusters = 0.5
-            else:
-                eps = self.hyperparams['eps']
-            if not self.hyperparams['min_samples']:
-                min_samples = 5
-            else:
-                min_samples = self.hyperparams['min_samples']
-                SimilarityMatrix = sloth.GenerateSimilarityMatrix(inputs.values)
-                nclusters, labels, cnt = sloth.ClusterSimilarityMatrix(SimilarityMatrix, eps, min_samples)
+            SimilarityMatrix = sloth.GenerateSimilarityMatrix(inputs.values)
+            nclusters, labels, cnt = sloth.ClusterSimilarityMatrix(SimilarityMatrix, self.hyperparams['eps'], self.hyperparams['min_samples'])
         elif self.hyperparams['algorithm'] == 'HDBSCAN':
-            # enforce default value
-            if not self.hyperparams['min_samples']:
-                min_samples = 5
-            else:
-                min_samples = self.hyperparams['min_samples']
-                SimilarityMatrix = sloth.GenerateSimilarityMatrix(inputs.values)
-                nclusters, labels, cnt = sloth.HClusterSimilarityMatrix(SimilarityMatrix, min_samples)
+            SimilarityMatrix = sloth.GenerateSimilarityMatrix(inputs.values)
+            nclusters, labels, cnt = sloth.HClusterSimilarityMatrix(SimilarityMatrix, self.hyperparams['min_samples'])
         else:
-            # enforce default value
-            if not self.hyperparams['nclusters']:
-                nclusters = 4
-            else:
-                nclusters = self.hyperparams['nclusters']
-            labels = sloth.ClusterSeriesKMeans(inputs.values, nclusters, 'GlobalAlignmentKernelKMeans')       
+            labels = sloth.ClusterSeriesKMeans(inputs.values, self.hyperparams['nclusters'], 'GlobalAlignmentKernelKMeans')       
 
         # add metadata to output
         labels = pandas.DataFrame(labels)
@@ -172,9 +148,9 @@ if __name__ == '__main__':
     
     # Load data and preprocessing
     input_dataset = container.Dataset.load('file:///data/home/jgleason/D3m/datasets/seed_datasets_current/66_chlorineConcentration/TEST/dataset_TEST/datasetDoc.json')
-    ds2df_client = DatasetToDataFrame.DatasetToDataFramePrimitive(hyperparams = {"dataframe_resource":"0"})
+    ds2df_client = DatasetToDataFrame.DatasetToDataFramePrimitive(hyperparams_class.defaults().replace({"dataframe_resource":"0"}))
     df = d3m_DataFrame(ds2df_client.produce(inputs = input_dataset).value)    
-    storc_client = Storc(hyperparams={'algorithm':None,'nclusters':None})#hyperparams={'algorithm':'DBSCAN','eps':0.5, 'min_samples':5})
+    storc_client = Storc(hyperparams_class.defaults().replace({'algorithm':'TimeSeriesKMeans','nclusters':4}))
     result = storc_client.produce(inputs = df)
     print(result.value)
     result.value.to_csv('sloth_predictions.csv', index = False)
