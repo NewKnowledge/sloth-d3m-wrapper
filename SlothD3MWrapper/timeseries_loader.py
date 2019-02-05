@@ -65,11 +65,15 @@ class TimeSeriesLoaderPrimitive(transformer.TransformerPrimitiveBase[container.D
             'id': '1689aafa-16dc-4c55-8ad4-76cadcf46086',
             'version': '0.1.0',
             'name': 'Time series loader',
-            'python_path': 'd3m.primitives.distil.TimeSeriesLoader',
+            'python_path': 'd3m.primitives.data_preprocessing.time_series_to_list.TimeSeriesLoader',
             'keywords': ['series', 'reader', 'csv'],
             'source': {
                 'name': 'Uncharted Software',
-                'contact': 'mailto:chris.bethune@uncharted.software'
+                'contact': 'mailto:chris.bethune@uncharted.software',
+                'uris': [
+                # Unstructured URIs.
+                     "https://github.com/NewKnowledge/sloth-d3m-wrapper",
+                ],
             },
             'installation': [{
                 'type': metadata_base.PrimitiveInstallationType.PIP,
