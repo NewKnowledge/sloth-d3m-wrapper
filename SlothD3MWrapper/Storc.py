@@ -72,7 +72,7 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
             },
             {
                 "type": "PIP",
-                "package_uri": "git+https://github.com/NewKnowledge/sloth.git@jg/editDeps#egg=Sloth"
+                "package_uri": "git+https://github.com/NewKnowledge/sloth.git@7731b9db160d58da266f7ce959d976e25e784369#egg=Sloth"
             },
             {
             'type': metadata_base.PrimitiveInstallationType.PIP,
