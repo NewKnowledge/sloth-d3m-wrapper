@@ -71,10 +71,6 @@ class Storc(TransformerPrimitiveBase[Inputs, Outputs, Hyperparams]):
             'version': '0.28.5',
             },
             {
-                "type": "PIP",
-                "package_uri": "git+https://github.com/NewKnowledge/sloth.git@82a1e08049531270256f38ca838e6cc7d1119223#egg=Sloth"
-            },
-            {
             'type': metadata_base.PrimitiveInstallationType.PIP,
             'package_uri': 'git+https://github.com/NewKnowledge/sloth-d3m-wrapper.git@{git_commit}#egg=SlothD3MWrapper'.format(
                 git_commit=utils.current_git_commit(os.path.dirname(__file__)),)
